@@ -1,16 +1,14 @@
 ---
-name: Tails Azimuth
-avatar: /static/images/avatar.png
-occupation: Professor of Atmospheric Science
-company: Stanford University
-email: address@yoursite.com
-twitter: https://twitter.com/Twitter
-linkedin: https://www.linkedin.com
-github: https://github.com
+name: Joash Mathew
+avatar: /static/images/avatar.jpg
+occupation: CS Undergrad
+company: Queen's University
+email: hey@joashmathew.dev
+twitter: https://twitter.com/j0ashm
+linkedin: https://www.linkedin.com/in/joashmathew
+github: https://github.com/j0ashm
 ---
 
-Tails Azimuth is a professor of atmospheric sciences at the Stanford AI Lab. His research interests includes complexity modelling of tailwinds, headwinds and crosswinds.
+Joash Mathew is an undergraduate Computer Science student at [Queen's University](https://cs.queensu.ca) in Canada. His interests lie in computer security, and backend development.
 
-He leads the clean energy group which develops 3D air pollution-climate models, writes differential equation solvers, and manufactures titanium plated air ballons. In his free time he bakes raspberry pi.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed neque elit, tristique placerat feugiat ac, facilisis vitae arcu. Proin eget egestas augue. Praesent ut sem nec arcu pellentesque aliquet. Duis dapibus diam vel metus tempus vulputate.
+Currently, he in an intern at [Distributive](https://distributive.network) working on building a powerful distributed computing platform and ecosystem using web technologies. In his free time, he can be found binging a Netflix show, or playing a video game.
