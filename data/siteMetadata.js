@@ -6,11 +6,11 @@ const siteMetadata = {
     'Random musings related to interesting discoveries I make as I progress in my journey as a software engineer.',
   language: 'en-us',
   theme: 'dark', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
+  siteUrl: 'https://joashmathew.dev',
   siteRepo: 'https://github.com/j0ashm/blog',
   siteLogo: '/static/images/logo.png',
   image: '/static/images/avatar.jpg',
-  socialBanner: '/static/images/twitter-card.png',
+  // socialBanner: '/static/images/twitter-card.png',
   email: 'hey@joashmathew.dev',
   github: 'https://github.com/j0ashm',
   twitter: 'https://twitter.com/j0ashm',
