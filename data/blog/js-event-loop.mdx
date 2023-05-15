@@ -41,7 +41,7 @@ console.log(average(2, 4))
 On executing this script, JavaScript will first push the global execution context, known as `main()` onto the stack. It then sees the `average()` function being called, so that is also now pushed onto the stack. And finally, inside the `average()` function, it sees the `add()` function is called - so it pushes that onto the stack too.
 
 This is what the call stack looks like over the lifecycle of this script:
-![Progression of the call stack during the execution of the script](/static/images/blog/call_stack.png)
+![Progression of the call stack during the execution of the script](/static/images/blog/event_loop/call_stack.png)
 Simple enough, right?
 
 Oh, and, ever heard of "**stack overflow**"? Yes, that website where you go to copy weird solutions from, but also a stack overflow is what happens when there are too many functions on the call stack - the size of the call stack varies between different implementations.
@@ -64,7 +64,7 @@ So, if JavaScript is single-threaded, doesn't that mean that it only has one cal
 Asynchronous tasks in JavaScript work thanks to a C library called [libuv](https://en.wikipedia.org/wiki/Libuv) which provides asynchronous support to Node using an event loop.
 
 This is what the entire mechanism looks like for handling functions.
-![A visualization of all the structures involved in allowing asynchronous programming in JS](/static/images/blog/js_structures.png)
+![A visualization of all the structures involved in allowing asynchronous programming in JS](/static/images/blog/event_loop/js_structures.png)
 When a function is called, it gets pushed onto the call stack. If the function is asynchronous and we need to wait some amount of time to get a result from it, it is popped from the call stack and pushed into the libuv pool. While we wait _t_ time for the function in the libuv pool to finish, the process continues executing functions by pushing them onto the call stack.
 Eventually, whenever the function in the libuv pool finishes executing, a callback from the function is added to the event queue. The event loop then waits for the call stack to be empty. Whenever the call stack is empty, the event loop will check the event queue and pass a function from the queue into the stack to be executed.
 
@@ -111,24 +111,24 @@ Cool, concept out of the way. Here's some stuff I discovered while messing aroun
 Consider this code:
 
 ```js
-console.log('hi')
+console.log('hi');
 
 setTimeout(function cb1() {
-  console.log('cb1')
-}, 1000)
+  console.log('cb1');
+}, 1000);
 
 setTimeout(function cb2() {
-  console.log('cb2')
-}, 1000)
+  console.log('cb2');
+}, 1000);
 
 console.log(
   new Promise((resolve) => {
-    console.log('promise1')
-    resolve('resolved')
-  })
+    console.log('promise1');
+    resolve('resolved');
+  });
 )
 
-console.log('bye')
+console.log('bye');
 ```
 
 When I first looked at this, I thought the output would look like:
