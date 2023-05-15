@@ -1,0 +1,173 @@
+---
+title: The JavaScript Event Loop
+date: '2023-05-15'
+tags: ['javascript', 'programming']
+draft: false
+summary: If JavaScript is a single-threaded language, how does asynchronous functions work?
+images: []
+layout: PostLayout
+canonicalUrl: http://joashmathew.dev/blog/js-event-loop
+---
+
+# The JavaScript Event Loop
+
+When you hear about JavaScript, what comes to your mind? Aside from things like "hey, it's that thing that powers my favourite cat-viewer website!", big words like "asynchronous", "single-threaded", "concurrent", and "non-blocking" may also pop into your head.
+Honestly, for the most part, for the last 4 or so years of coding JavaScript, I have taken these words for granted. I understand what they mean as individual terms, but never really paid any attention to what it is in the context of JavaScript.
+
+A few days ago, a colleague tapped my shoulder for a sanity check while he was writing a test for a feature he was implementing. We noticed some strange behaviour, and not long after did we find out it was because of JavaScript's magical _event loop_ and _callback queue_.
+
+And so begins the rabbit hole. What the heck is the event loop? Callback queue who? How can JavaScript be asynchronous, if it's a single-threaded programming language?
+
+If you're still with me, read on for my exploration and attempted explanation of how all these things work together.
+
+### Call Stack
+
+The call stack is how JavaScript keeps track of what function needs to be run and when. As the name, the call stack is implemented based on the Stack data structure. Specifically, it works on the LIFO principle.
+Whenever you execute a script or run a function, JavaScript throws the function on top of the call stack.
+Consider the following example:
+
+```js
+function add(a, b) {
+  return a + b
+}
+
+function average(a, b) {
+  return add(a, b) / 2
+}
+
+console.log(average(2, 4))
+```
+
+On executing this script, JavaScript will first push the global execution context, known as `main()` onto the stack. It then sees the `average()` function being called, so that is also now pushed onto the stack. And finally, inside the `average()` function, it sees the `add()` function is called - so it pushes that onto the stack too.
+
+This is what the call stack looks like over the lifecycle of this script:
+![Progression of the call stack during the execution of the script](/static/images/blog/event_loop/call_stack.png)
+Simple enough, right?
+
+Oh, and, ever heard of "**stack overflow**"? Yes, that website where you go to copy weird solutions from, but also a stack overflow is what happens when there are too many functions on the call stack - the size of the call stack varies between different implementations.
+A simple way to cause an overflow:
+
+```js
+function blowStack() {
+  blowStack()
+}
+
+blowStack()
+```
+
+This function has no break condition, so it will keep pushing the `blowStack()` function onto the stack until the call stack is full.
+
+So, if JavaScript is single-threaded, doesn't that mean that it only has one call stack? And if there's one call stack, that means functions will be executed in sequence. Line by line, if you will. Or in fancier terms, shouldn't it be "synchronous"?
+
+### So, how does asynchronous stuff work?
+
+Asynchronous tasks in JavaScript work thanks to a C library called [libuv](https://en.wikipedia.org/wiki/Libuv) which provides asynchronous support to Node using an event loop.
+
+This is what the entire mechanism looks like for handling functions.
+![A visualization of all the structures involved in allowing asynchronous programming in JS](/static/images/blog/event_loop/js_structures.png)
+When a function is called, it gets pushed onto the call stack. If the function is not natively part of the JavaScript runtime, and is implemented by the browser (eg. the DOM, setTimeout, setInterval, etc.) it is popped from the call stack and pushed into the libuv pool. While we wait _some_ time for the function in the libuv pool to finish, the process continues executing functions by pushing them onto the call stack.
+Similarly, there is also a Microtask Queue, which handles Promises. Whenever the call stack is empty, the event loop will look at the microtask queue first and then the callback queue. If there are any functions in the microtask queue, they are given priority and they will be pushed onto the call stack. The event loop then repeats this process until it hits the end of the code.
+
+Example:
+
+```js
+console.log('This goes first')
+setTimeout(() => {
+  console.log('This is second')
+}, 1000)
+console.log('This is third')
+```
+
+As you would expect, this is what you'll see in the console as a result of the above program being executed.
+
+```shell
+This goes first
+This is third
+This is second
+```
+
+But what if do this?
+
+```js
+console.log('First')
+setTimeout(() => {
+  console.log('Second')
+}, 0)
+console.log('Third')
+```
+
+Since the timeout is 0, at first glance, you'd expect all the statements to execute as-is line-by-line. But, no. Because of how JavaScript handles asynchronous code, this will still function the same as in the earlier example. Even though the setTimeout has a duration of 0ms, it will still be added to the libuv pool and then the callback queue, but since the event loop has to wait for the call stack to be empty before it can move something from the callback queue to the call stack, the callback inside the setTimeout is still the last function executed, causing the output to be:
+
+```shell
+First
+Third
+Second
+```
+
+### Other Discoveries
+
+Cool, concept out of the way. Here's some stuff I discovered while messing around to understand how the event loop works.
+
+Consider this code:
+
+```js
+console.log('hi');
+
+setTimeout(function cb1() {
+  console.log('cb1');
+}, 1000);
+
+setTimeout(function cb2() {
+  console.log('cb2');
+}, 1000);
+
+console.log(
+  new Promise((resolve) => {
+    console.log('promise1');
+    resolve('resolved');
+  });
+)
+
+console.log('bye');
+```
+
+When I first looked at this, I thought the output would look like:
+
+```shell
+hi
+bye
+cb1
+cb2
+promise1
+resolved
+```
+
+Turns out, I'm wrong. Promises aren't handled by the libuv pool, so they just run line-by-line like normal. The actual output is:
+
+```shell
+hi
+promise1
+Promise { 'resolved' }
+bye
+cb1
+cb2
+```
+
+**TL;DR:**
+
+- JavaScript is single-threaded, so it can only do one thing at a time.
+- The illusion of being multi-threaded is created by the event loop, callback queue and microtask queue.
+- Promises are handled by the microtask queue.
+- Asynchronous functions are handled by libuv, which pushes them into the callback queue.
+- The event loop waits for the call stack to be empty before it moves a function from the callback queue or microtask queue to the call stack.
+  - The functions in the microtask queue take priority.
+- libuv handles the following operations:
+  - file operations with fs
+  - network operations (net, dns, dgram)
+  - child_processes
+
+References:
+
+- [JavaScript Call Stack by JavaScript Tutorial](https://www.javascripttutorial.net/javascript-call-stack/)
+- [JavaScript Event Loop by JavaScript Tutorial](https://www.javascripttutorial.net/javascript-event-loop/)
+- [JavaScript Event Loop: How it Works and Why it Matters in 5 Minutes by James Q Quick](https://www.youtube.com/watch?v=lqLSNG_79lI)
