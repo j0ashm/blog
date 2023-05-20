@@ -65,8 +65,8 @@ Asynchronous tasks in JavaScript work thanks to a C library called [libuv](https
 
 This is what the entire mechanism looks like for handling functions.
 ![A visualization of all the structures involved in allowing asynchronous programming in JS](/static/images/blog/event_loop/js_structures.png)
-When a function is called, it gets pushed onto the call stack. If the function is asynchronous and we need to wait some amount of time to get a result from it, it is popped from the call stack and pushed into the libuv pool. While we wait _t_ time for the function in the libuv pool to finish, the process continues executing functions by pushing them onto the call stack.
-Eventually, whenever the function in the libuv pool finishes executing, a callback from the function is added to the event queue. The event loop then waits for the call stack to be empty. Whenever the call stack is empty, the event loop will check the event queue and pass a function from the queue into the stack to be executed.
+When a function is called, it gets pushed onto the call stack. If the function is not natively part of the JavaScript runtime, and is implemented by the browser (eg. the DOM, setTimeout, setInterval, etc.) it is popped from the call stack and pushed into the libuv pool. While we wait _some_ time for the function in the libuv pool to finish, the process continues executing functions by pushing them onto the call stack.
+Similarly, there is also a Microtask Queue, which handles Promises. Whenever the call stack is empty, the event loop will look at the microtask queue first and then the callback queue. If there are any functions in the microtask queue, they are given priority and they will be pushed onto the call stack. The event loop then repeats this process until it hits the end of the code.
 
 Example:
 
@@ -96,7 +96,7 @@ setTimeout(() => {
 console.log('Third')
 ```
 
-Since the timeout is 0, at first glance, you'd expect all the statements to execute as-is line-by-line. But, no. Because of how JavaScript handles asynchronous code, this will still function the same as in the earlier example. Even though the setTimeout has a duration of 0ms, it will still be added to the libuv pool and then the event queue, but since the event loop has to wait for the call stack to be empty before it can move something from the event queue to the call stack, the callback inside the setTimeout is still the last function executed, causing the output to be:
+Since the timeout is 0, at first glance, you'd expect all the statements to execute as-is line-by-line. But, no. Because of how JavaScript handles asynchronous code, this will still function the same as in the earlier example. Even though the setTimeout has a duration of 0ms, it will still be added to the libuv pool and then the callback queue, but since the event loop has to wait for the call stack to be empty before it can move something from the callback queue to the call stack, the callback inside the setTimeout is still the last function executed, causing the output to be:
 
 ```shell
 First
@@ -156,9 +156,11 @@ cb2
 **TL;DR:**
 
 - JavaScript is single-threaded, so it can only do one thing at a time.
-- The illusion of being multi-threaded is created by the event loop and the event queue.
-- Asynchronous functions are handled by libuv, which pushes them into the event queue when they're done executing.
-  - The event loop waits for the call stack to be empty before it moves a function from the event queue to the call stack
+- The illusion of being multi-threaded is created by the event loop, callback queue and microtask queue.
+- Promises are handled by the microtask queue.
+- Asynchronous functions are handled by libuv, which pushes them into the callback queue.
+- The event loop waits for the call stack to be empty before it moves a function from the callback queue or microtask queue to the call stack.
+  - The functions in the microtask queue take priority.
 - libuv handles the following operations:
   - file operations with fs
   - network operations (net, dns, dgram)
