@@ -1,9 +1,9 @@
 ---
-title: The JavaScript Event Loop
-date: '2023-05-15'
-tags: ['javascript', 'programming']
+title: JavaScript's Event Loop and Asynchronous Nature
+date: '2023-05-20'
+tags: ['javascript', 'async programming']
 draft: false
-summary: If JavaScript is a single-threaded language, how does asynchronous functions work?
+summary: Explore the inner workings of JavaScript's event loop, understand the magic behind asynchronous programming, and discover how single-threaded JavaScript manages to handle concurrent tasks.
 images: []
 layout: PostLayout
 canonicalUrl: http://joashmathew.dev/blog/js-event-loop
@@ -14,9 +14,7 @@ canonicalUrl: http://joashmathew.dev/blog/js-event-loop
 When you hear about JavaScript, what comes to your mind? Aside from things like "hey, it's that thing that powers my favourite cat-viewer website!", big words like "asynchronous", "single-threaded", "concurrent", and "non-blocking" may also pop into your head.
 Honestly, for the most part, for the last 4 or so years of coding JavaScript, I have taken these words for granted. I understand what they mean as individual terms, but never really paid any attention to what it is in the context of JavaScript.
 
-A few days ago, a colleague tapped my shoulder for a sanity check while he was writing a test for a feature he was implementing. We noticed some strange behaviour, and not long after did we find out it was because of JavaScript's magical _event loop_ and _callback queue_.
-
-And so begins the rabbit hole. What the heck is the event loop? Callback queue who? How can JavaScript be asynchronous, if it's a single-threaded programming language?
+A few days ago, I decided I would finally learn what this mysterious unicorn term really means. What the heck is the event loop? Callback queue who? How can JavaScript be asynchronous, if it's a single-threaded programming language?
 
 If you're still with me, read on for my exploration and attempted explanation of how all these things work together.
 

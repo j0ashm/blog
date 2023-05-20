@@ -2,9 +2,8 @@ const siteMetadata = {
   title: 'Joash Mathew',
   author: 'Joash',
   headerTitle: 'Joash Mathew',
-  description:
-    'Random musings related to interesting discoveries I make as I progress in my journey as a software engineer.',
-  language: 'en-us',
+  description: 'Insights from my journey as an aspiring software developer',
+  language: 'en-CA',
   theme: 'dark', // system, dark or light
   siteUrl: 'https://joashmathew.dev',
   siteRepo: 'https://github.com/j0ashm/blog',
@@ -15,7 +14,7 @@ const siteMetadata = {
   github: 'https://github.com/j0ashm',
   twitter: 'https://twitter.com/j0ashm',
   linkedin: 'https://www.linkedin.com/in/joashmathew',
-  locale: 'en-US',
+  locale: 'en-CA',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
     // content security policy in the `next.config.js` file.
@@ -50,7 +49,7 @@ const siteMetadata = {
       metadata: '0',
       // theme example: light, dark, dark_dimmed, dark_high_contrast
       // transparent_dark, preferred_color_scheme, custom
-      theme: 'light',
+      theme: 'dark',
       // Place the comment box above the comments. options: bottom, top
       inputPosition: 'bottom',
       // Choose the language giscus will be displayed in. options: en, es, zh-CN, zh-TW, ko, ja etc
